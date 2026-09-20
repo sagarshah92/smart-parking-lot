@@ -72,7 +72,7 @@ Assistant: Updated the design accordingly.
 User: so we dont need occupy and release as well right? we can directly call setOccupied
 Assistant: Yes, the spot occupancy is best represented by `setOccupied(boolean)` on ParkingSpot. No separate occupancy/release API was needed.
 
-User: Do we need to create priceCalculator object everytime? how can use singleton pattern?
+User: Do we need to create priceCalculator object everytime? we should use singleton pattern?
 Assistant: A singleton PriceCalculator is the right fit for this stateless service.
 
 User: yes update
