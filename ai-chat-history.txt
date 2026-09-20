@@ -1,0 +1,97 @@
+Project chat history - smart parking lot
+
+User: lets create entity folder in which we create class for our entities, Vehicle, ParkngSpot, Ticket
+Assistant: Added the entity package and created the core domain classes for Vehicle, ParkingSpot, and Ticket.
+
+User: For vehicletype lets create the enum Motorcycles, Cars, and Buses
+Assistant: Added a VehicleType enum covering MOTORCYCLE, CAR, and BUS along with rate multipliers.
+
+User: We need to create ParkingSpotType enum as well Compact spots for Motorcycles and Cars, Large for Buses
+Assistant: Added ParkingSpotType with COMPACT and LARGE spot categories.
+
+User: For parking fees each vehicle type has rate multiplier. Motorcycle 0.8x Car 1.0x Bus 2.0x
+Assistant: Implemented those multipliers in VehicleType and used them in rate calculations.
+
+User: We need to create PricingPolicy class. it has three types. Standard Hourly Rate with Peak Hour Surcharge, Early Bird Special, Night Owl Special. Each policy has different way to calculate the price
+Assistant: Added PricingPolicy with standard hourly pricing, early-bird validation, and night-owl rules.
+
+User: Also pricing is also different incremental. For example first hour is $5, $3 for second hour and $2 for all subsequent hour
+Assistant: Updated the standard pricing model to use first-hour, second-hour, and subsequent-hour rates.
+
+User: This are peekhours 7:00 AM – 10:00 AM OR 4:00 PM – 7:00 PM on weekdays
+Assistant: Added peak-hour surcharge logic to the standard hourly price calculation.
+
+User: Early bird is flat rat base model. Requires vehicle entry between 6:00 AM (inclusive) and 9:00 AM (exclusive) AND vehicle exit between 3:30 PM (inclusive) and 7:00 PM (exclusive) on the same calendar day. A flat fee of $15.00.
+Assistant: Implemented the early-bird window validation and flat-fee pricing rules.
+
+User: For each user, system should calculate all possible pricing policy and final price should be select the one yielding the minimum derived amount, and apply that final charge. So we should have pricecalculator controller class which calculates price for all policy. and make final price a minimum one.
+Assistant: Added PriceCalculator as the central calculator that evaluates all valid policies and selects the minimum valid price.
+
+User: for invalid scenario we should send -1 instead of 0 what do you think?
+Assistant: Yes, returning -1 for invalid or impossible scenarios is clearer than returning 0 because 0 could look like a valid free charge.
+
+User: yes clean up
+Assistant: Cleaned up the pricing and validation logic, making invalid results consistently return -1.
+
+User: for night owl Requires vehicle entry between 6:00 PM (inclusive) and 11:59:59 PM (inclusive, end of calendar day) AND vehicle exit between 5:00 AM (inclusive) and 10:00 AM (exclusive) on the next consecutive calendar day. base car rate A flat fee of $8.00.
+Assistant: Implemented the night-owl rule with same-day entry and next-day exit validation.
+
+User: lets introduce customer entity as well. and we are going to have loyalty tier enum and associated disocunt as well. Tier SILVER Discount 10% GOLD PLATINUM 20% 30%
+Assistant: Added Customer and LoyaltyTier with SILVER, GOLD, and PLATINUM discount rates.
+
+User: So in Tickety we need to add customer information as well.
+Assistant: Updated Ticket to include customer details and source-of-truth session metadata.
+
+User: For earlybird and nightowl price we will give loyalty tier discount
+Assistant: Applied loyalty-tier discounts to the flat-fee special pricing outputs.
+
+User: I think as per our current code this edge case is already covered. Critical Edge Case: If a vehicle stays for more than 24 hours, both the Early Bird Special and the Night Owl Special are automatically rendered invalid. The system must revert to evaluating the Standard Hourly Rate exclusively.
+Assistant: Confirmed the logical rule and kept special-rate validation invalid once the stay exceeds 24 hours.
+
+User: In parking lot should we initialize by having different type of spots?
+Assistant: Yes, ParkingLot should manage inventory by parking-spot type rather than a single shared count.
+
+User: lets change that
+Assistant: Refactored ParkingLot to use type-aware inventory maps for COMPACT and LARGE spots.
+
+User: For parkedVehicles we should map ticketid to ticket...
+Assistant: Updated the ticket lifecycle to track active tickets by ticket ID in the parking lot.
+
+User: may be leave function can return final price
+Assistant: Confirmed that leave(...) should return the final charge while removing the active ticket.
+
+User: And park can return Ticket object
+Assistant: Updated park(...) to return a Ticket object representing the active session.
+
+User: I think activeTicketsByTicketId is enough
+Assistant: Kept the active ticket map as the source of truth for active parking sessions.
+
+User: yes update it
+Assistant: Updated the design accordingly.
+
+User: so we dont need occupy and release as well right? we can directly call setOccupied
+Assistant: Yes, the spot occupancy is best represented by `setOccupied(boolean)` on ParkingSpot. No separate occupancy/release API was needed.
+
+User: Do we need to create priceCalculator object everytime? how can use singleton pattern?
+Assistant: A singleton PriceCalculator is the right fit for this stateless service.
+
+User: yes update
+Assistant: Converted PriceCalculator to a singleton and kept the usage centralized.
+
+User: In app java we should add specific time to test it out different scenario is returning correct ticket price.
+Assistant: Added explicit time-based scenario tests to App.java to validate standard, early-bird, night-owl, long-stay, and bus cases.
+
+User: Can we call parkingLot.exit function and exit function can take exit time which caller can pass?
+Assistant: Yes — the lot now supports a caller-supplied exit time.
+
+User: now in app java we should call exit instaed of calling priceclaculator directly
+Assistant: Updated the app to use parkingLot.exit(ticketId, exitTime) instead of directly using PriceCalculator.
+
+User: Similary should we pass entry time in park fucntion?
+Assistant: Yes — it makes sense to pass entry time in the park function as well. The cleaner API is park(vehicle, customer, spot, entryTime) while keeping the default no-arg overload using LocalDateTime.now().
+
+User: Can you copy all this our conversation in ai-chat-history.txt next to readme
+Assistant: Wrote the project history into ai-chat-history.txt next to the README.
+
+User: You should append chat history from begining.
+Assistant: Updated the file to include the full conversation history from the beginning of the project through the latest API decisions.
