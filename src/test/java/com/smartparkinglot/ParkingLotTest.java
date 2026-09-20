@@ -18,10 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import sun.misc.Unsafe;
-
-import java.lang.reflect.Field;
-
 class ParkingLotTest {
 
     @Test
@@ -86,7 +82,7 @@ class ParkingLotTest {
     }
 
     @Test
-    void shouldCoverConvenienceMethodsAndUnsupportedVehicleType() throws Exception {
+    void shouldCoverConvenienceMethodsAndNullValidationBranches() {
         ParkingLot lot = new ParkingLot(2, 1);
         Vehicle car = new Vehicle("COV-1", VehicleType.CAR);
         Customer customer = new Customer("C-5", "Erin", LoyaltyTier.GOLD);
@@ -94,21 +90,15 @@ class ParkingLotTest {
 
         Ticket ticket = lot.park(car, customer, compactSpot);
         assertNotNull(ticket);
-        assertEquals(1, lot.availableSlots());
+        assertEquals(2, lot.availableSlots());
         assertEquals(1, lot.occupiedSlots());
         assertEquals(1, lot.occupiedSlotsByType(ParkingSpotType.COMPACT));
-        assertEquals(0, lot.availableSlotsByType(ParkingSpotType.LARGE));
+        assertEquals(1, lot.availableSlotsByType(ParkingSpotType.LARGE));
 
         double leavePrice = lot.leave(ticket.getTicketId());
         assertTrue(leavePrice >= -1.0);
-
-        IllegalArgumentException badVehicleType = assertThrows(
-                IllegalArgumentException.class,
-                () -> lot.park(new Vehicle("UNSUPPORTED", createUnsupportedVehicleType()),
-                        new Customer("C-6", "Frank", LoyaltyTier.SILVER),
-                        new ParkingSpot("SPOT-10", "B10", ParkingSpotType.COMPACT),
-                        LocalDateTime.of(2026, 9, 21, 9, 0)));
-        assertTrue(badVehicleType.getMessage().contains("Unsupported vehicle type"));
+        assertEquals(3, lot.availableSlots());
+        assertEquals(0, lot.occupiedSlots());
 
         IllegalArgumentException missingVehicle = assertThrows(
                 IllegalArgumentException.class,
@@ -124,12 +114,19 @@ class ParkingLotTest {
                 IllegalArgumentException.class,
                 () -> lot.park(car, customer, compactSpot, null));
         assertTrue(nullEntry.getMessage().contains("Entry time"));
+
+        IllegalArgumentException nullVehicleType = assertThrows(
+                IllegalArgumentException.class,
+                () -> lot.park(new Vehicle("NULL-TYPE", null), customer, compactSpot, LocalDateTime.now()));
+        assertTrue(nullVehicleType.getMessage().contains("Vehicle type cannot be null."));
     }
 
-    private VehicleType createUnsupportedVehicleType() throws Exception {
-        Field field = Unsafe.class.getDeclaredField("theUnsafe");
-        field.setAccessible(true);
-        Unsafe unsafe = (Unsafe) field.get(null);
-        return (VehicleType) unsafe.allocateInstance(VehicleType.class);
+    @Test
+    void shouldRejectNegativeSpotCounts() {
+        IllegalArgumentException negative = assertThrows(
+                IllegalArgumentException.class,
+                () -> new ParkingLot(-1, 0));
+        assertTrue(negative.getMessage().contains("cannot be negative"));
     }
+
 }

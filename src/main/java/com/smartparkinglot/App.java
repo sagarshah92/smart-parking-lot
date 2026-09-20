@@ -11,6 +11,9 @@ import com.smartparkinglot.entity.VehicleType;
 import java.time.LocalDateTime;
 
 public class App {
+    public App() {
+    }
+
     public static void main(String[] args) {
         ParkingLot parkingLot = new ParkingLot(5, 2);
 

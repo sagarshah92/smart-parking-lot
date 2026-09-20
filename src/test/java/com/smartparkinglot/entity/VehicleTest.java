@@ -31,4 +31,14 @@ class VehicleTest {
         assertTrue(text.contains("BUS-42"));
         assertTrue(text.contains("BUS"));
     }
+
+    @Test
+    void shouldSupportDefaultConstructor() {
+        Vehicle vehicle = new Vehicle();
+        vehicle.setLicensePlate("MOT-7");
+        vehicle.setType(VehicleType.MOTORCYCLE);
+
+        assertEquals("MOT-7", vehicle.getLicensePlate());
+        assertEquals(VehicleType.MOTORCYCLE, vehicle.getType());
+    }
 }

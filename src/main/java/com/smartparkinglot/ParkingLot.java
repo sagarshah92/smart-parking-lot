@@ -133,14 +133,10 @@ public class ParkingLot {
             throw new IllegalArgumentException("Vehicle type cannot be null.");
         }
 
-        switch (vehicleType) {
-            case MOTORCYCLE:
-            case CAR:
-                return ParkingSpotType.COMPACT;
-            case BUS:
-                return ParkingSpotType.LARGE;
-            default:
-                throw new IllegalArgumentException("Unsupported vehicle type: " + vehicleType);
+        if (vehicleType == VehicleType.BUS) {
+            return ParkingSpotType.LARGE;
         }
+
+        return ParkingSpotType.COMPACT;
     }
 }

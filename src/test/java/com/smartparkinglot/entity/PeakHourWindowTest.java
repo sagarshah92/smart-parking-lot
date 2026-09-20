@@ -22,4 +22,16 @@ class PeakHourWindowTest {
         assertEquals(19.0, window.getEndHour(), 0.0001);
         assertEquals(2.0, window.getSurcharge(), 0.0001);
     }
+
+    @Test
+    void shouldSupportDefaultConstructor() {
+        PeakHourWindow window = new PeakHourWindow();
+        window.setStartHour(9.999);
+        window.setEndHour(10.001);
+        window.setSurcharge(1.75);
+
+        assertEquals(9.999, window.getStartHour(), 0.0001);
+        assertEquals(10.001, window.getEndHour(), 0.0001);
+        assertEquals(1.75, window.getSurcharge(), 0.0001);
+    }
 }

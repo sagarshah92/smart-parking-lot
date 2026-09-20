@@ -35,4 +35,16 @@ class CustomerTest {
         assertTrue(text.contains("Cara"));
         assertTrue(text.contains("PLATINUM"));
     }
+
+    @Test
+    void shouldSupportDefaultConstructor() {
+        Customer customer = new Customer();
+        customer.setCustomerId("C-4");
+        customer.setName("Diana");
+        customer.setLoyaltyTier(LoyaltyTier.GOLD);
+
+        assertEquals("C-4", customer.getCustomerId());
+        assertEquals("Diana", customer.getName());
+        assertEquals(LoyaltyTier.GOLD, customer.getLoyaltyTier());
+    }
 }
